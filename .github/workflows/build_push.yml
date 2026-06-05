@@ -1,12 +1,9 @@
 name: CI
 
-permissions:
-  contents: write  # DITAMBAHKAN: Agar bisa commit & push
-
 on:
   push:
     branches:
-      - main  # DIUBAH: Dari master ke main
+      - master
     paths:
       - '**'
       - '!**.md'
@@ -31,9 +28,8 @@ jobs:
       - name: Clone repo
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4
         with:
-          ref: main  # DIUBAH: Sesuaikan dengan branch default
-          # Jika script bump-versions butuh push ke repo lain, gunakan PAT:
-          # token: ${{ secrets.ANIYOMIORG_BOT_PAT }}
+          ref: master
+          token: ${{ secrets.ANIYOMIORG_BOT_PAT }}
 
       - name: Find lib changes
         id: modified-libs
@@ -52,6 +48,7 @@ jobs:
           git_user_signingkey: true
           git_commit_gpgsign: true
 
+        # This step is going to commit, but this will not trigger another workflow.
       - name: Bump extensions that uses a modified lib
         if: steps.modified-libs.outputs.any_changed == 'true'
         run: |
@@ -64,6 +61,7 @@ jobs:
         run: |
           set -x
           projects=(src/*/*)
+
           echo "NUM_INDIVIDUAL_MODULES=${#projects[@]}" >> $GITHUB_ENV
 
       - id: generate-matrices
@@ -90,7 +88,7 @@ jobs:
       - name: Checkout master branch
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4
         with:
-          ref: main  # DIUBAH: Dari master ke main
+          ref: master
 
       - name: Set up JDK
         uses: actions/setup-java@387ac29b308b003ca37ba93a6cab5eb57c8f5f93 # v4
@@ -145,7 +143,7 @@ jobs:
       - name: Checkout master branch
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4
         with:
-          ref: main  # DIUBAH: Dari master ke main
+          ref: master
           path: master
 
       - name: Create repo artifacts
